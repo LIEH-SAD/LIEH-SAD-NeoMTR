@@ -1,0 +1,229 @@
+import groovy.json.JsonSlurper
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+	id "java"
+	id "architectury-plugin" version "3.5-SNAPSHOT"
+	id "de.undercouch.download" version "+"
+	id "dev.architectury.loom-no-remap" version "1.17-SNAPSHOT" apply false
+	id "com.gradleup.shadow" version "9.4.2" apply false
+}
+
+apply from: "build_dep_ver.gradle"
+
+def patreon_api_key = rootProject.properties.containsKey("patreonApiKey") ? rootProject.getProperties().get("patreonApiKey").toString() : ""
+def testServer = rootProject.properties.containsKey("testServer") ? rootProject.getProperties().get("testServer").toString() : ""
+
+rootProject.ext.variation = rootProject.properties.containsKey("variation") ? rootProject.getProperties().get("variation").toString() : "normal"
+rootProject.ext.variation_header = rootProject.variation == "normal" ? "NeoMTR" : rootProject.variation == "server" ? "NeoMTR-server" : "Modern-Elevators-Escalators"
+
+architectury {
+	minecraft = minecraft_version
+}
+
+configure(subprojects.findAll {it.name != 'rhino'}) {
+	apply plugin: "dev.architectury.loom-no-remap"
+	apply plugin: "com.gradleup.shadow"
+
+	configurations {
+		shadowCommon
+	}
+
+	dependencies {
+		minecraft "com.mojang:minecraft:${minecraft_version}"
+		implementation name: "Dynmap-3.2.1"
+		implementation name: "BlueMapAPI-2.1.1"
+		implementation "xyz.jpenilla:squaremap-api:+"
+		implementation "org.eclipse.jetty:jetty-http:9.+"
+		implementation "org.eclipse.jetty:jetty-io:9.+"
+		implementation "org.eclipse.jetty:jetty-security:9.+"
+		implementation "org.eclipse.jetty:jetty-server:9.+"
+		implementation "org.eclipse.jetty:jetty-servlet:9.+"
+		implementation "org.eclipse.jetty:jetty-util:9.+"
+		implementation "org.eclipse.jetty:jetty-util-ajax:9.+"
+		implementation "javax.servlet:javax.servlet-api:+"
+		implementation "org.msgpack:msgpack-core:+"
+		implementation "com.hierynomus:sshj:+"
+		// implementation "com.github.jonafanho:Minecraft-Mod-API-Tools:${rootProject.minecraft_mod_api_tools_version}"
+		shadowCommon "org.eclipse.jetty:jetty-http:9.+"
+		shadowCommon "org.eclipse.jetty:jetty-io:9.+"
+		shadowCommon "org.eclipse.jetty:jetty-security:9.+"
+		shadowCommon "org.eclipse.jetty:jetty-server:9.+"
+		shadowCommon "org.eclipse.jetty:jetty-servlet:9.+"
+		shadowCommon "org.eclipse.jetty:jetty-util:9.+"
+		shadowCommon "org.eclipse.jetty:jetty-util-ajax:9.+"
+		shadowCommon "javax.servlet:javax.servlet-api:+"
+		shadowCommon "org.msgpack:msgpack-core:+"
+
+		implementation project(":rhino")
+		shadowCommon project(":rhino")
+	}
+}
+
+tasks.register("setupFiles") {
+//	download.run {
+//		src "https://github.com/jonafanho/Minecraft-Mappings/archive/refs/heads/1.19.4.zip"
+//		dest "common/src/main/java/mtr/mappings/mappings.zip"
+//		overwrite true
+//		retries - 1
+//	}
+//	copy {
+//		outputs.upToDateWhen { false }
+//		from(zipTree("common/src/main/java/mtr/mappings/mappings.zip")) { eachFile { file -> file.relativePath = new RelativePath(true, file.relativePath.segments.drop(1) as String[]) } }
+//		into "common/src/main/java/mtr/mappings"
+//		filter(ReplaceTokens, tokens: ["package": "mtr.mappings"])
+//	}
+//	ant.path { ant.fileset(dir: "common/src/main/java/mtr/mappings", includes: "Fabric*.java") }.list().each {
+//		ant.move(file: it, todir: "fabric/src/main/java/mtr/mappings")
+//	}
+//	ant.path { ant.fileset(dir: "common/src/main/java/mtr/mappings", includes: "Forge*.java") }.list().each {
+//		ant.move(file: it, todir: "forge/src/main/java/mtr/mappings")
+//	}
+
+/*
+	download.run {
+		src "https://crowdin.com/backend/download/project/minecraft-transit-railway.zip"
+		dest "common/src/main/java/mtr/mappings/lang.zip"
+		overwrite true
+		retries - 1
+	}
+*/
+
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "common/src/main/KeysTemplate.java"
+		into "common/src/main/java/mtr"
+		filter(ReplaceTokens, tokens: ["key": patreon_api_key, "version": rootProject.mod_version + "+" + minecraft_version, "lifts": rootProject.variation, "server": testServer])
+		rename "(.+)Template.java", "\$1.java"
+	}
+	copy {
+		outputs.upToDateWhen { false }
+		from "common/src/main/latest.json"
+		into "build/latest"
+		filter(ReplaceTokens, tokens: ["version": rootProject.mod_version])
+	}
+	copy {
+		outputs.upToDateWhen { false }
+		from "common/src/main/version-template.js"
+		into "common/src/main/resources/assets/mtr/website"
+		filter(ReplaceTokens, tokens: ["version": minecraft_version + "-" + rootProject.mod_version])
+		rename "(.+)-template.js", "\$1.js"
+	}
+//	copy {
+//		outputs.upToDateWhen { false }
+//		from "fabric/src/main/UnknownPacketMixinTemplate.java"
+//		into "fabric/src/main/java/mtr/mixin"
+//		filter(ReplaceTokens, tokens: ["path1": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache/logging/log4j" : "slf4j", "path2": minecraft_main_version <= 17 || minecraft_version == "1.18" ? "apache.logging.log4j" : "slf4j"])
+//		rename "(.+)Template.java", "\$1.java"
+//	}
+//	copy {
+//		outputs.upToDateWhen { false }
+//		from "forge/src/main/LevelRendererMixinTemplate.java"
+//		into "forge/src/main/java/mtr/mixin"
+//		filter(ReplaceTokens, tokens: ["path": joml_math ? "org.joml" : "com.mojang.math"])
+//		rename "(.+)Template.java", "\$1.java"
+//	}
+
+	if (minecraft_main_version <= 17) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "fabric/src/main/BlockEntityExtensionTemplate.java"
+			into "fabric/src/main/java/" + (minecraft_main_version == 16 ? "me/shedaniel" : "dev") + "/architectury/extensions"
+			filter(ReplaceTokens, tokens: ["package": minecraft_main_version == 16 ? "me.shedaniel" : "dev"])
+			rename "(.+)Template.java", "\$1.java"
+		}
+	}
+	if (minecraft_main_version != 16) {
+		ant.delete(dir: "fabric/src/main/java/me")
+	}
+	if (minecraft_main_version != 17) {
+		ant.delete(dir: "fabric/src/main/java/dev")
+	}
+}
+
+configure(allprojects.findAll {it.name != 'rhino'}) {
+	apply plugin: "architectury-plugin"
+
+	version = rootProject.mod_version + "+" + minecraft_version
+	group = rootProject.maven_group
+
+	repositories {
+		maven { url "https://maven.neoforged.net/releases/" }
+		maven { url 'https://jitpack.io' }
+		maven { url = "https://maven.terraformersmc.com/" }
+		maven {
+			name = 'ParchmentMC'
+			url = 'https://maven.parchmentmc.org'
+		}
+		flatDir {
+			dirs "../libs"
+		}
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
+	}
+
+	tasks.withType(ProcessResources) {
+	filesMatching("fabric.mod.json") {
+		expand(mod_version: rootProject.mod_version)
+	}
+}
+
+	afterEvaluate {
+		for (def task in it.tasks) {
+			if (task != rootProject.tasks.setupFiles) {
+				task.dependsOn rootProject.tasks.setupFiles
+			}
+		}
+	}
+}
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(26))
+	}
+	withSourcesJar()
+	withJavadocJar()
+}
+
+static Object getJson(String url) {
+	int tries = 0
+	while (true) {
+		try {
+			if (tries > 1) {
+				System.out.println("Parsed ${url} after ${tries} tries")
+			}
+			return new JsonSlurper().parse(url.toURL())
+		} catch (Exception ignored) {
+			Thread.sleep(1000)
+		}
+	}
+}
+
+import org.gradle.api.internal.file.copy.CopyAction;
+import org.gradle.api.internal.file.copy.CopyActionProcessingStream;
+
+//class DummyArchiveTask extends AbstractArchiveTask {
+//
+//	protected CopyAction createCopyAction() {
+//		return new DummyCopyAction();
+//	}
+//
+//	class DummyCopyAction implements CopyAction {
+//
+//		@Override
+//		WorkResult execute(CopyActionProcessingStream stream) {
+//			return WorkResults.didWork(true);
+//		}
+//	}
+//}
+
+//task dummyForgeOutput(type: DummyArchiveTask) {
+//	// This is to make github.com/teaconmc/longjing happy.
+//	destinationDirectory = file("build/release/")
+//	archiveBaseName = "NeoMTR-neoforge"
+//	archiveVersion = rootProject.mod_version + "+" + minecraft_version
+//	archiveExtension = "jar"
+//}

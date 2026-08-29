@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:redstone_block",
+    "minecraft:iron_door",
+    "minecraft:glowstone_dust",
+    "minecraft:glass_pane"
+  ],
+  "result": {
+    "count": 8,
+    "id": "mtr:apg_door"
+  }
+}

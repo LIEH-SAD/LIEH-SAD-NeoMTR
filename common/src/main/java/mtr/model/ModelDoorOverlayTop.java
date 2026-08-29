@@ -1,0 +1,54 @@
+package mtr.model;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import mtr.mappings.ModelDataWrapper;
+import mtr.mappings.ModelMapper;
+import mtr.render.MoreRenderLayers;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.resources.Identifier;
+
+import java.util.List;
+import java.util.Map;
+
+public class ModelDoorOverlayTop extends EntityModel<EntityRenderState> {
+
+	private final ModelMapper bb_main;
+	private final ModelMapper outer_roof_2_r1;
+	private final ModelMapper outer_roof_1_r1;
+
+	private static final Identifier TEXTURE_ID = Identifier.parse("mtr:textures/block/sign/door_overlay_sp1900_top.png");
+
+	public ModelDoorOverlayTop() {
+		super(new ModelPart(List.of(), Map.of()));
+        final int textureWidth = 24;
+		final int textureHeight = 3;
+
+		final ModelDataWrapper modelDataWrapper = new ModelDataWrapper();
+
+		bb_main = new ModelMapper(modelDataWrapper);
+		bb_main.setPos(0, 24, 0);
+
+
+		outer_roof_2_r1 = new ModelMapper(modelDataWrapper);
+		outer_roof_2_r1.setPos(-20, -14, 0);
+		bb_main.addChild(outer_roof_2_r1);
+		ModelTrainBase.setRotationAngle(outer_roof_2_r1, 0, 3.1416F, 0.1107F);
+		outer_roof_2_r1.texOffs(0, -12).addBox(1.1F, -21, 0, 0, 3, 12, 0, false);
+
+		outer_roof_1_r1 = new ModelMapper(modelDataWrapper);
+		outer_roof_1_r1.setPos(-20, -14, 0);
+		bb_main.addChild(outer_roof_1_r1);
+		ModelTrainBase.setRotationAngle(outer_roof_1_r1, 0, 0, 0.1107F);
+		outer_roof_1_r1.texOffs(0, -12).addBox(-1.1F, -21, 0, 0, 3, 12, 0, false);
+
+		modelDataWrapper.setModelPart(textureWidth, textureHeight);
+		bb_main.setModelPart();
+	}
+
+	public void render(PoseStack matrices, MultiBufferSource vertexConsumers, int light, int position) {
+		ModelTrainBase.renderMirror(bb_main, matrices, vertexConsumers.getBuffer(MoreRenderLayers.getExterior(TEXTURE_ID)), light / 4 * 3, position);
+	}
+}

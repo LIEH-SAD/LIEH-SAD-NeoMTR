@@ -1,0 +1,18 @@
+package cn.zbx1425.sowcerext.multipart;
+
+import cn.zbx1425.sowcer.math.Matrix4f;
+import cn.zbx1425.sowcerext.model.ModelCluster;
+
+public abstract class PartBase {
+
+    public PartBase parent;
+
+    public abstract void update(MultipartUpdateProp prop);
+
+    public abstract ModelCluster getModel(MultipartUpdateProp prop);
+
+    public abstract Matrix4f getTransform(MultipartUpdateProp prop);
+
+    public abstract boolean isStatic();
+
+}

@@ -1,0 +1,142 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.apache.tools.ant.taskdefs.condition.Os
+
+loom {
+	accessWidenerPath = project(":common").loom.accessWidenerPath
+
+	neoForge {
+		convertAccessWideners(tasks.named('shadowJar', Jar), "mtrsteamloco.accesswidener")
+	}
+}
+
+architectury {
+	platformSetupLoomIde()
+	neoForge()
+}
+
+configurations {
+	common
+	shadowCommon
+	clothConfigJar
+	compileClasspath.extendsFrom common
+	runtimeClasspath.extendsFrom common
+	developmentNeoForge.extendsFrom common
+}
+
+dependencies {
+	neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
+
+	forgeRuntimeLibrary "org.eclipse.jetty:jetty-http:9.+"
+	forgeRuntimeLibrary "org.eclipse.jetty:jetty-io:9.+"
+	forgeRuntimeLibrary "org.eclipse.jetty:jetty-security:9.+"
+	forgeRuntimeLibrary "org.eclipse.jetty:jetty-server:9.+"
+	forgeRuntimeLibrary "org.eclipse.jetty:jetty-servlet:9.+"
+	forgeRuntimeLibrary "org.eclipse.jetty:jetty-util:9.+"
+	forgeRuntimeLibrary "org.eclipse.jetty:jetty-util-ajax:9.+"
+	forgeRuntimeLibrary "javax.servlet:javax.servlet-api:+"
+	forgeRuntimeLibrary "org.msgpack:msgpack-core:+"
+
+	forgeRuntimeLibrary project(":rhino")
+
+	api("me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}") { transitive false }
+	api("me.shedaniel.cloth:basic-math:0.6.1") { transitive false }
+	clothConfigJar("me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}") { transitive = false }
+	clothConfigJar("me.shedaniel.cloth:basic-math:0.6.1") { transitive false }
+
+	common(project(path: ":common")) { transitive false }
+	shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("META-INF/neoforge.mods.toml") {
+		expand "version": project.version
+	}
+}
+
+shadowJar {
+	configurations = [project.configurations.shadowCommon]
+	archiveBaseName = "NeoMTR"
+	archiveClassifier = null
+
+	exclude "fabric.mod.json"
+	exclude "*.bmp"
+
+	relocate 'de.javagl', 'vendor.cn.zbx1425.sowcerext.de.javagl'
+
+	from project.configurations.clothConfigJar.files.collect {
+		return zipTree(it).matching { filter ->
+			filter.include { e ->
+				matchInnerClass e.path as String,
+						"me/shedaniel/clothconfig2",
+						"me/shedaniel/math",
+						"assets/cloth-config2"
+			}
+		}
+	}
+
+	relocate "me.shedaniel", "cn.zbx1425.mtrsteamloco.vendor.me.shedaniel"
+
+	relocate "javax.servlet", "mtr.libraries.javax.servlet"
+	relocate "org.eclipse", "mtr.libraries.org.eclipse"
+
+	mergeServiceFiles()
+}
+
+assemble.dependsOn shadowJar
+
+static boolean matchInnerClass(String path, String... names) {
+	names.any { name -> path.startsWith(name) }
+}
+
+components.java {
+	withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+		skip()
+	}
+}
+
+tasks.register("moveForgeBuilds") {
+	doLast {
+		delete fileTree("../build/release").matching {
+			include "**/${rootProject.variation_header}-neoforge*"
+		}
+		delete fileTree("../build/release").matching {
+			include "**/${rootProject.variation_header}-NeoMTR*"
+		}
+		delete fileTree("../build/libs").matching {
+			include "**/${rootProject.variation_header}-neoforge*"
+		}
+		delete fileTree("../build/latest").matching {
+			include "**/${rootProject.variation_header}-neoforge*"
+		}
+		copy {
+			from "build/libs"
+			include "NeoMTR-*${rootProject.minecraft_version}.jar"
+			into "../build/release"
+			rename "NeoMTR-(.+)", "${rootProject.variation_header}-neoforge-\$1"
+		}
+		if (rootProject.variation == "normal") {
+			copy {
+				from "build/libs"
+				include "NeoMTR-*${rootProject.minecraft_version}.jar"
+				into "../build/latest"
+				rename { fileName -> "NeoMTR-neoforge-${fileName.replace("NeoMTR-", "").replace(rootProject.mod_version, "latest")}" }
+			}
+			copy {
+				from "build/libs"
+				include "NeoMTR-*${rootProject.minecraft_version}.jar"
+				into "../build/libs"
+				rename "NeoMTR-(.+)", "${rootProject.variation_header}-neoforge-\$1"
+			}
+		}
+	}
+}
+
+afterEvaluate {
+	for (def task in it.tasks) {
+		if (task == tasks.build) {
+			task.finalizedBy tasks.moveForgeBuilds
+		}
+	}
+}

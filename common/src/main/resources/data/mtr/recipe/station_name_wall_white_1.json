@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "#minecraft:signs",
+    "#minecraft:signs",
+    "minecraft:iron_ingot"
+  ],
+  "result": {
+    "id": "mtr:station_name_wall"
+  }
+}

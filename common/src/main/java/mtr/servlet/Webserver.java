@@ -1,0 +1,115 @@
+package mtr.servlet;
+
+import com.lx862.tprobe3.data.CompiledTrainData;
+import com.lx862.tprobe3.servlet.DepotServletHandler;
+import com.lx862.tprobe3.servlet.FrontendServlet;
+import mtr.MTR;
+import mtr.data.DataCache;
+import mtr.data.RailwayData;
+import mtr.data.Route;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.jspecify.annotations.Nullable;
+
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+public abstract class Webserver {
+	private static Server webServer;
+	private static ServerConnector serverConnector;
+	public static MinecraftCallback minecraftCallback;
+
+	public static void setMinecraftCallback(MinecraftCallback callback) {
+		minecraftCallback = callback;
+	}
+
+	public static void init() {
+		webServer = new Server(new QueuedThreadPool(100, 10, 120));
+		serverConnector = new ServerConnector(webServer);
+		webServer.setConnectors(new Connector[]{serverConnector});
+		final ServletContextHandler context = new ServletContextHandler();
+		webServer.setHandler(context);
+
+		// Note: Due to unknown reasons (Likely some java security policy?), getResource on a directory would return null on NF 26.1
+		// So we must get the URL from a file first, then resolve the parent dir
+		final URL url = MTR.class.getResource("/assets/mtr/website/index.html");
+		if (url != null) {
+			try {
+				final URI websiteDirectory = new URI(url.toString().replace("/index.html", ""));
+				context.setBaseResource(Resource.newResource(websiteDirectory));
+				FrontendServlet.probeSiteFile();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			throw new IllegalStateException("MTR Webserver Setup: No website found!");
+		}
+		final ServletHolder servletHolder = new ServletHolder("default", DefaultServlet.class);
+		servletHolder.setInitParameter("dirAllowed", "true");
+		servletHolder.setInitParameter("cacheControl", "max-age=0,public");
+		context.addServlet(servletHolder, "/");
+		context.addServlet(DataServletHandler.class, "/data");
+		context.addServlet(InfoServletHandler.class, "/info");
+		context.addServlet(ArrivalsServletHandler.class, "/arrivals");
+		context.addServlet(DelaysServletHandler.class, "/delays");
+		context.addServlet(RouteFinderServletHandler.class, "/route");
+
+		// TProbe
+		context.addServlet(FrontendServlet.class, "/tviewer/*");
+		context.addServlet(DepotServletHandler.class, "/api/tprobe/depots/*");
+	}
+
+	public static void start(Path path) {
+		if(minecraftCallback == null) throw new IllegalStateException("Minecraft callback not configured!");
+
+		int port = 8888;
+		try {
+			port = Mth.clamp(Integer.parseInt(String.join("", Files.readAllLines(path)).replaceAll("\\D", "")), 1025, 65535);
+		} catch (Exception ignored) {
+			try {
+				Files.write(path, Collections.singleton(String.valueOf(port)));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		serverConnector.setPort(port);
+		try {
+			webServer.start();
+		} catch (Exception e) {
+			MTR.LOGGER.error("Error starting webserver!", e);
+		}
+	}
+
+	public static void stop() {
+		try {
+			webServer.stop();
+		} catch (Exception e) {
+			MTR.LOGGER.error("Error stopping webserver!", e);
+		}
+	}
+
+	public interface MinecraftCallback {
+		void runOnMainThread(Runnable runnable);
+		@Nullable MinecraftServer getServer();
+		List<Level> getLevels();
+		List<Player> getLevelPlayers();
+		Set<Route> getRoutes(RailwayData railwayData);
+		DataCache getDataCache(RailwayData railwayData);
+		List<CompiledTrainData> getExtraTrains(); // Used for client-side VD, need a client proxy to do so
+	}
+}

@@ -1,0 +1,330 @@
+package mtr.render;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import mtr.block.BlockRailwaySign;
+import mtr.block.BlockStationNameBase;
+import mtr.block.IBlock;
+import mtr.client.ClientCache;
+import mtr.client.ClientData;
+import mtr.client.CustomResources;
+import mtr.client.IDrawing;
+import mtr.data.IGui;
+import mtr.data.Platform;
+import mtr.data.RailwayData;
+import mtr.data.Station;
+import mtr.mappings.BlockEntityRendererMapper;
+import mtr.mappings.MatrixStackWrapper;
+import mtr.util.UtilitiesClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class RenderRailwaySign<T extends BlockRailwaySign.TileEntityRailwaySign> extends BlockEntityRendererMapper<T, RenderRailwaySign.RailwaySignRenderState> implements IBlock, IGui, IDrawing {
+
+	public RenderRailwaySign(BlockEntityRenderDispatcher dispatcher) {
+		super(dispatcher);
+	}
+
+	@Override
+	public void submit(RailwaySignRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+		if (!state.shouldRender) return;
+
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		storedMatrixTransformations.add(matricesNew -> {
+			matricesNew.translate(0.5 + state.blockPos.getX(), 0.53125 + state.blockPos.getY(), 0.5 + state.blockPos.getZ());
+			UtilitiesClient.rotateYDegrees(matricesNew, -state.facing.toYRot());
+			UtilitiesClient.rotateZDegrees(matricesNew, 180);
+			matricesNew.translate(state.xStart / 16F - 0.5, 0, -0.0625 - SMALL_OFFSET * 2);
+		});
+
+		poseStack.pushPose();
+		poseStack.translate(0.5, 0.53125, 0.5);
+		UtilitiesClient.rotateYDegrees(poseStack, -state.facing.toYRot());
+		UtilitiesClient.rotateZDegrees(poseStack, 180);
+		poseStack.translate(state.xStart / 16F - 0.5, 0, -0.0625 - SMALL_OFFSET * 2);
+
+		if (state.renderBackground) {
+			final int newBackgroundColor = state.backgroundColor | ARGB_BLACK;
+			RenderTrains.scheduleRender(Identifier.parse("mtr:textures/block/white.png"), false, RenderTrains.QueuedRenderLayer.LIGHT, (matricesNew, vertexConsumer) -> {
+				storedMatrixTransformations.transform(matricesNew);
+				IDrawing.drawTexture(matricesNew.last(), vertexConsumer, 0, 0, SMALL_OFFSET, 0.5F * (state.signIds.length), 0.5F, SMALL_OFFSET, state.facing, newBackgroundColor, MAX_LIGHT_GLOWING);
+				matricesNew.popPose();
+			});
+		}
+		for (int i = 0; i < state.signIds.length; i++) {
+			if (state.signIds[i] != null) {
+				drawSign(new MatrixStackWrapper.PoseStack(poseStack), false, storedMatrixTransformations, Minecraft.getInstance().font, state.blockPos, state.signIds[i], 0.5F * i, 0, 0.5F, getMaxWidth(state.signIds, i, false), getMaxWidth(state.signIds, i, true), state.featureIds, state.facing, state.backgroundColor | ARGB_BLACK, (textureId, x, y, size, flipTexture) -> {
+					RenderTrains.scheduleRender(Identifier.parse(textureId.toString()), true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformations.transform(matricesNew);
+						IDrawing.drawTexture(matricesNew.last(), vertexConsumer, x, y, size, size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1, state.facing, -1, MAX_LIGHT_GLOWING);
+						matricesNew.popPose();
+					});
+				}, new TextDrawingCallback.World());
+			}
+		}
+
+		poseStack.popPose();
+	}
+
+	@Override
+	public RailwaySignRenderState createRenderState() {
+		return new RailwaySignRenderState();
+	}
+
+	@Override
+	public void extractRenderState(T blockEntity, RailwaySignRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+		super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
+		final BlockState blockState = blockEntity.getBlockState();
+
+		final String[] signIds = blockEntity.getSignIds();
+		if (!(blockState.getBlock() instanceof BlockRailwaySign block)) {
+			state.shouldRender = false;
+			return;
+		}
+        if (signIds.length != block.length) {
+			state.shouldRender = false;
+			return;
+		}
+		state.shouldRender = true;
+		state.facing = IBlock.getStatePropertySafe(blockState, BlockStationNameBase.FACING);
+		state.signIds = signIds;
+
+		boolean renderBackground = false;
+		int backgroundColor = 0;
+		for (final String signId : state.signIds) {
+			if (signId != null) {
+				final CustomResources.CustomSign sign = getSign(signId);
+				if (sign != null) {
+					renderBackground = true;
+					if (sign.backgroundColor != 0) {
+						backgroundColor = sign.backgroundColor;
+						break;
+					}
+				}
+			}
+		}
+		state.renderBackground = renderBackground;
+		state.backgroundColor = backgroundColor;
+		state.featureIds = blockEntity.getSelectedIds();
+		state.xStart = block.getXStart();
+	}
+
+	@Override
+	public boolean shouldRenderOffScreen() {
+		return true;
+	}
+
+	public static void drawSign(MatrixStackWrapper poseStack, boolean isPreview, StoredMatrixTransformations storedMatrixTransformations, Font textRenderer, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, Set<Long> featureIds, Direction facing, int backgroundColor, DrawTexture drawTexture, TextDrawingCallback textDrawingCallback) {
+		if (RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance, facing)) {
+			return;
+		}
+
+		final CustomResources.CustomSign sign = getSign(signId);
+		if (sign == null) {
+			return;
+		}
+
+		final float signSize = (sign.small ? BlockRailwaySign.SMALL_SIGN_PERCENTAGE : 1) * size;
+		final float margin = (size - signSize) / 2;
+
+		final boolean hasCustomText = sign.hasCustomText();
+		final boolean flipCustomText = sign.flipCustomText;
+		final boolean flipTexture = sign.flipTexture;
+		final boolean isExit = signId.equals(BlockRailwaySign.SignType.EXIT_LETTER.toString()) || signId.equals(BlockRailwaySign.SignType.EXIT_LETTER_FLIPPED.toString());
+		final boolean isLine = signId.equals(BlockRailwaySign.SignType.LINE.toString()) || signId.equals(BlockRailwaySign.SignType.LINE_FLIPPED.toString());
+		final boolean isPlatform = signId.equals(BlockRailwaySign.SignType.PLATFORM.toString()) || signId.equals(BlockRailwaySign.SignType.PLATFORM_FLIPPED.toString());
+		final boolean isStation = signId.equals(BlockRailwaySign.SignType.STATION.toString()) || signId.equals(BlockRailwaySign.SignType.STATION_FLIPPED.toString());
+
+		final MultiBufferSource.BufferSource immediate = RenderTrains.shouldNotRender(pos, RenderTrains.maxTrainRenderDistance / 2, null) ? null : Minecraft.getInstance().renderBuffers().bufferSource();
+
+		if (!isPreview && isExit) {
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+			if (station == null) {
+				return;
+			}
+
+			final Map<String, List<String>> exits = station.getGeneratedExits();
+			final List<String> selectedExitsSorted = featureIds.stream().map(Station::deserializeExit).filter(exits::containsKey).sorted(String::compareTo).toList();
+
+			poseStack.pushPose();
+			poseStack.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
+			final float maxWidth = ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 2;
+			final float exitWidth = signSize * selectedExitsSorted.size();
+			poseStack.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
+
+			for (int i = 0; i < selectedExitsSorted.size(); i++) {
+				final String selectedExit = selectedExitsSorted.get(flipCustomText ? selectedExitsSorted.size() - i - 1 : i);
+				final float offset = (flipCustomText ? -1 : 1) * signSize * i - (flipCustomText ? signSize : 0);
+
+				RenderTrains.scheduleRender(ClientData.DATA_CACHE.getExitSignLetter(selectedExit.substring(0, 1), selectedExit.substring(1), backgroundColor).resourceLocation, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (matricesNew, vertexConsumer) -> {
+					storedMatrixTransformations.transform(matricesNew);
+					matricesNew.translate(x + margin + (flipCustomText ? signSize : 0), y + margin, 0);
+					matricesNew.scale(Math.min(1, maxWidth / exitWidth), 1, 1);
+					IDrawing.drawTexture(matricesNew.last(), vertexConsumer, offset, 0, signSize, signSize, facing, MAX_LIGHT_GLOWING);
+					matricesNew.popPose();
+				});
+
+				if (maxWidth > exitWidth && selectedExitsSorted.size() == 1 && !exits.get(selectedExit).isEmpty()) {
+					renderCustomText(exits.get(selectedExit).get(0), storedMatrixTransformations, facing, size, flipCustomText ? x : x + size, flipCustomText, maxWidth - exitWidth - margin * 2, backgroundColor);
+				}
+			}
+
+			poseStack.popPose();
+		} else if (!isPreview && isLine) {
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+			if (station == null) {
+				return;
+			}
+
+			final Map<Integer, ClientCache.ColorNameTuple> routesInStation = ClientData.DATA_CACHE.getAllRoutesIncludingConnectingStations(station);
+			final List<ClientCache.ColorNameTuple> selectedIdsSorted = featureIds.stream().filter(selectedId -> RailwayData.isBetween(selectedId, Integer.MIN_VALUE, Integer.MAX_VALUE)).map(Math::toIntExact).filter(routesInStation::containsKey).map(routesInStation::get).sorted(Comparator.comparingInt(route -> route.color)).toList();
+
+			final float maxWidth = Math.max(0, ((flipCustomText ? maxWidthLeft : maxWidthRight) + 1) * size - margin * 2);
+			final float height = size - margin * 2;
+			final List<ClientCache.DynamicResource> resourceLocationDataList = new ArrayList<>();
+			float totalTextWidth = 0;
+			for (final ClientCache.ColorNameTuple route : selectedIdsSorted) {
+				final ClientCache.DynamicResource resourceLocationData = ClientData.DATA_CACHE.getRouteSquare(route.color, route.name, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT);
+				resourceLocationDataList.add(resourceLocationData);
+				totalTextWidth += height * resourceLocationData.width / resourceLocationData.height + margin / 2F;
+			}
+
+			final StoredMatrixTransformations storedMatrixTransformations2 = storedMatrixTransformations.copy();
+			storedMatrixTransformations2.add(matricesNew -> matricesNew.translate(flipCustomText ? x + size - margin : x + margin, 0, 0));
+
+			if (totalTextWidth > margin / 2F) {
+				totalTextWidth -= margin / 2F;
+			}
+			if (totalTextWidth > maxWidth) {
+				final float finalTotalTextWidth = totalTextWidth;
+				storedMatrixTransformations2.add(matricesNew -> matricesNew.scale(maxWidth / finalTotalTextWidth, 1, 1));
+			}
+
+			float xOffset = 0;
+			for (final ClientCache.DynamicResource resourceLocationData : resourceLocationDataList) {
+				final float width = height * resourceLocationData.width / resourceLocationData.height;
+				final float finalXOffset = xOffset;
+				RenderTrains.scheduleRender(resourceLocationData.resourceLocation, true, RenderTrains.QueuedRenderLayer.LIGHT, (matricesNew, vertexConsumer) -> {
+					storedMatrixTransformations2.transform(matricesNew);
+					IDrawing.drawTexture(matricesNew.last(), vertexConsumer, flipCustomText ? -finalXOffset - width : finalXOffset, margin, width, height, Direction.UP, MAX_LIGHT_GLOWING);
+					matricesNew.popPose();
+				});
+				xOffset += width + margin / 2F;
+			}
+		} else if (!isPreview && isPlatform) {
+			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, pos);
+			if (station == null) {
+				return;
+			}
+
+			final Map<Long, Platform> platformPositions = ClientData.DATA_CACHE.requestStationIdToPlatforms(station.id);
+			if (platformPositions != null) {
+				final List<Long> selectedIdsSorted = featureIds.stream().filter(platformPositions::containsKey).sorted(Comparator.comparing(platformPositions::get)).toList();
+				final int selectedCount = selectedIdsSorted.size();
+
+				final float extraMargin = margin - margin / selectedCount;
+				final float height = (size - extraMargin * 2) / selectedCount;
+				for (int i = 0; i < selectedIdsSorted.size(); i++) {
+					final float topOffset = i * height + extraMargin;
+					final float bottomOffset = (i + 1) * height + extraMargin;
+					final float left = flipCustomText ? x - maxWidthLeft * size : x + margin;
+					final float right = flipCustomText ? x + size - margin : x + (maxWidthRight + 1) * size;
+					RenderTrains.scheduleRender(ClientData.DATA_CACHE.getDirectionArrow(selectedIdsSorted.get(i), false, false, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, false, margin / size, (right - left) / (bottomOffset - topOffset), backgroundColor, ARGB_WHITE, backgroundColor).resourceLocation, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (matricesNew, vertexConsumer) -> {
+						storedMatrixTransformations.transform(matricesNew);
+						IDrawing.drawTexture(matricesNew.last(), vertexConsumer, left, topOffset, 0, right, bottomOffset, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
+						matricesNew.popPose();
+					});
+				}
+			}
+		} else {
+			drawTexture.drawTexture(sign.textureId, x + margin, y + margin, signSize, flipTexture);
+
+			if (hasCustomText) {
+				final float fixedMargin = size * (1 - BlockRailwaySign.SMALL_SIGN_PERCENTAGE) / 2;
+				final boolean isSmall = sign.small;
+				final float maxWidth = Math.max(0, (flipCustomText ? maxWidthLeft : maxWidthRight) * size - fixedMargin * (isSmall ? 1 : 2));
+				final float start = flipCustomText ? x - (isSmall ? 0 : fixedMargin) : x + size + (isSmall ? 0 : fixedMargin);
+				if (isPreview) {
+					IDrawing.drawStringWithFont(poseStack, textRenderer, immediate, isExit || isLine ? "..." : sign.customText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, VerticalAlignment.TOP, start, y + fixedMargin, maxWidth, size - fixedMargin * 2, 0.01F, ARGB_WHITE, false, MAX_LIGHT_GLOWING, null, new IDrawing.TextDrawingCallback.World());
+				} else {
+					final String signText;
+					if (isStation) {
+						signText = IGui.mergeStations(featureIds.stream().filter(ClientData.DATA_CACHE.stationIdMap::containsKey).sorted(Long::compareTo).map(stationId -> IGui.insertTranslation("gui.mtr.station_cjk", "gui.mtr.station", 1, ClientData.DATA_CACHE.stationIdMap.get(stationId).name)).collect(Collectors.toList()));
+					} else {
+						signText = sign.customText;
+					}
+					renderCustomText(signText, storedMatrixTransformations, facing, size, start, flipCustomText, maxWidth, backgroundColor);
+				}
+			}
+		}
+
+		if (immediate != null) {
+			immediate.endBatch();
+		}
+	}
+
+	private static void renderCustomText(String signText, StoredMatrixTransformations storedMatrixTransformations, Direction facing, float size, float start, boolean flipCustomText, float maxWidth, int backgroundColor) {
+		final ClientCache.DynamicResource dynamicResource = ClientData.DATA_CACHE.getSignText(signText, flipCustomText ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT, (1 - BlockRailwaySign.SMALL_SIGN_PERCENTAGE) / 2, backgroundColor, ARGB_WHITE);
+		final float width = Math.min(size * dynamicResource.width / dynamicResource.height, maxWidth);
+		RenderTrains.scheduleRender(dynamicResource.resourceLocation, true, RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT, (matricesNew, vertexConsumer) -> {
+			storedMatrixTransformations.transform(matricesNew);
+			IDrawing.drawTexture(matricesNew.last(), vertexConsumer, start - (flipCustomText ? width : 0), 0, 0, start + (flipCustomText ? 0 : width), size, 0, 0, 0, 1, 1, facing, -1, MAX_LIGHT_GLOWING);
+			matricesNew.popPose();
+		});
+	}
+
+	public static CustomResources.CustomSign getSign(String signId) {
+		try {
+			final BlockRailwaySign.SignType sign = BlockRailwaySign.SignType.valueOf(signId);
+			return new CustomResources.CustomSign(sign.textureId, sign.flipTexture, sign.customText, sign.flipCustomText, sign.small, sign.backgroundColor);
+		} catch (Exception ignored) {
+			return signId == null ? null : CustomResources.CUSTOM_SIGNS.get(signId);
+		}
+	}
+
+	public static float getMaxWidth(String[] signIds, int index, boolean right) {
+		float maxWidthLeft = 0;
+		for (int i = index + (right ? 1 : -1); right ? i < signIds.length : i >= 0; i += (right ? 1 : -1)) {
+			if (signIds[i] != null) {
+				final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signIds[i]);
+				if (sign != null && sign.hasCustomText() && right == sign.flipCustomText) {
+					maxWidthLeft /= 2;
+				}
+				return maxWidthLeft;
+			}
+			maxWidthLeft++;
+		}
+
+		return maxWidthLeft;
+	}
+
+	@FunctionalInterface
+	public interface DrawTexture {
+		void drawTexture(Identifier textureId, float x, float y, float size, boolean flipTexture);
+	}
+
+	public static class RailwaySignRenderState extends BlockEntityRenderState {
+		boolean shouldRender;
+		boolean renderBackground;
+		int backgroundColor;
+		int xStart;
+		Direction facing;
+		String[] signIds;
+		/** Contains either Platform / Route / Station or Exit Ids */
+		Set<Long> featureIds;
+	}
+}

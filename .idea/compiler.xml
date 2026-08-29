@@ -14,7 +14,7 @@
         <module name="Minecraft-Transit-Railway.common.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="25" />
+    <bytecodeTargetLevel target="26" />
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

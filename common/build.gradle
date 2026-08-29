@@ -1,0 +1,56 @@
+dependencies {
+	implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+
+	api("me.shedaniel.cloth:cloth-config:${rootProject.cloth_config_version}") { transitive = false }
+
+	annotationProcessor 'systems.manifold:manifold-preprocessor:+'
+}
+
+architectury {
+	common("fabric", "neoforge")
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/mtrsteamloco.accesswidener")
+}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs += ['-Xplugin:Manifold', '-AMC_VERSION=' + rootProject.minecraft_version_int]
+}
+
+tasks.shadowJar {
+	zip64 = true
+}
+
+task moveCommonBuilds() {
+	doLast {
+		delete fileTree("../build/libs").matching {
+			include "**/MTR-common*"
+		}
+		delete fileTree("../build/latest").matching {
+			include "**/MTR-common*"
+		}
+		if (rootProject.variation == "server") {
+			copy {
+				from "build/devlibs"
+				include "*dev.jar"
+				into "../build/libs"
+				rename "(.+)", "MTR-\$1"
+			}
+			copy {
+				from "build/devlibs"
+				include "*dev.jar"
+				into "../build/latest"
+				rename { fileName -> "MTR-${fileName.replace(rootProject.mod_version, "latest")}" }
+			}
+		}
+	}
+}
+
+afterEvaluate {
+	for (def task in it.tasks) {
+		if (task == tasks.build) {
+			task.finalizedBy tasks.moveCommonBuilds
+		}
+	}
+}

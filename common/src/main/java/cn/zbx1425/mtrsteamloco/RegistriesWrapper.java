@@ -1,0 +1,43 @@
+package cn.zbx1425.mtrsteamloco;
+
+import mtr.BrandNewEpicRegistryObject;
+import mtr.CreativeModeTabs;
+import mtr.RegistryObject;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+
+import java.util.List;
+import java.util.function.Supplier;
+
+public interface RegistriesWrapper {
+
+    void registerBlock(String path, BrandNewEpicRegistryObject<Block> block);
+
+    void registerItem(String path, BrandNewEpicRegistryObject<Item> item);
+
+    void registerBlockAndItem(String path, BrandNewEpicRegistryObject<Block> block, CreativeModeTabs.Wrapper tab);
+
+    void registerCreativeModeTabStacks(CreativeModeTabs.Wrapper tab, Supplier<List<ItemStack>> stacksSupplier);
+
+    void registerBlockEntityType(String path, RegistryObject<? extends BlockEntityType<? extends BlockEntity>> blockEntityType);
+
+    void registerDataComponents(String path, RegistryObject<? extends DataComponentType<?>> dataComponent);
+
+    void registerEntityType(String path, RegistryObject<? extends EntityType<? extends Entity>> entityType);
+
+    void registerSoundEvent(String path, SoundEvent soundEvent);
+
+    void registerParticleType(String path, ParticleType<?> particleType);
+
+    SimpleParticleType createParticleType(boolean overrideLimiter);
+
+}

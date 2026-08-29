@@ -1,0 +1,40 @@
+name: build
+on: [ pull_request, push ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Validate gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: 25
+      - name: Make gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Apply Gradle cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-${{ matrix.minecraft }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.minecraft }}-gradle-
+      - name: Build ${{ matrix.minecraft }} Fabric
+        run: ./gradlew fabric:build -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Build ${{ matrix.minecraft }} NeoForge
+        run: ./gradlew neoforge:build -PpatreonApiKey="${{ secrets.PATREON_API_KEY }}"
+      - name: Get commit SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Capture build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: NeoMTR-${{ steps.vars.outputs.sha_short }}
+          path: build/release/

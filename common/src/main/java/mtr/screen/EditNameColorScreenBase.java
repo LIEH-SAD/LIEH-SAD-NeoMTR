@@ -1,0 +1,82 @@
+package mtr.screen;
+
+import mtr.client.IDrawing;
+import mtr.data.IGui;
+import mtr.data.NameColorDataBase;
+import mtr.mappings.Text;
+import mtr.packet.IPacket;
+import mtr.screen.base.MTRScreen;
+import mtr.util.UtilitiesClient;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+
+public abstract class EditNameColorScreenBase<T extends NameColorDataBase> extends MTRScreen implements IGui, IPacket {
+
+	private int nameStart;
+	private int colorStart;
+	private int colorEnd;
+
+	protected final T data;
+	private final DashboardScreen dashboardScreen;
+	private final Component nameText;
+	private final Component colorText;
+
+	private final WidgetBetterTextField textFieldName;
+	private final WidgetColorSelector colorSelector;
+
+	public EditNameColorScreenBase(T data, DashboardScreen dashboardScreen, String nameKey, String colorKey) {
+		super(Text.literal(""));
+		this.data = data;
+		this.dashboardScreen = dashboardScreen;
+		nameText = Text.translatable(nameKey);
+		colorText = Text.translatable(colorKey);
+
+		textFieldName = new WidgetBetterTextField("");
+		colorSelector = new WidgetColorSelector(this, true, () -> {
+		});
+	}
+
+	@Override
+	public void tick() {
+
+	}
+
+	@Override
+	public void onClose() {
+		super.onClose();
+        UtilitiesClient.setScreen(minecraft, dashboardScreen);
+        saveData();
+	}
+
+	@Override
+	public boolean isPauseScreen() {
+		return false;
+	}
+
+	protected void setPositionsAndInit(int nameStart, int colorStart, int colorEnd) {
+		this.nameStart = nameStart;
+		this.colorStart = colorStart;
+		this.colorEnd = colorEnd;
+
+		super.init();
+		final int yStart = SQUARE_SIZE + TEXT_FIELD_PADDING / 2;
+		IDrawing.setPositionAndWidth(textFieldName, nameStart + TEXT_FIELD_PADDING / 2, yStart, colorStart - nameStart - TEXT_FIELD_PADDING);
+		IDrawing.setPositionAndWidth(colorSelector, colorStart + TEXT_FIELD_PADDING / 2, yStart, colorEnd - colorStart - TEXT_FIELD_PADDING);
+
+		textFieldName.setValue(data.name);
+		colorSelector.setColor(data.color);
+
+		addRenderableWidget(textFieldName);
+		addRenderableWidget(colorSelector);
+	}
+
+	protected void renderTextFields(GuiGraphicsExtractor guiGraphics) {
+		guiGraphics.centeredText(font, nameText, (nameStart + colorStart) / 2, TEXT_PADDING, ARGB_WHITE);
+		guiGraphics.centeredText(font, colorText, (colorStart + colorEnd) / 2, TEXT_PADDING, ARGB_WHITE);
+	}
+
+	protected void saveData() {
+		data.name = textFieldName.getValue();
+		data.color = colorSelector.getColor();
+	}
+}

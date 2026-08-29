@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:redstone",
+    "minecraft:redstone",
+    "minecraft:clock",
+    "minecraft:smooth_stone",
+    "minecraft:smooth_stone",
+    "minecraft:smooth_stone",
+    "#c:nodes"
+  ],
+  "result": {
+    "count": 3,
+    "id": "mtr:train_schedule_sensor"
+  }
+}
