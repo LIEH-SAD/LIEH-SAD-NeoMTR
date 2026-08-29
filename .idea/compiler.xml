@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <option name="MC_VERSION" value="260102" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/systems.manifold/manifold-preprocessor/2026.1.12/852acd342227b61dd5a2879b528154c0914de559/manifold-preprocessor-2026.1.12.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/systems.manifold/manifold/2026.1.12/8444a35868ef573b319bf6cd558ebf3d586fab64/manifold-2026.1.12.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/systems.manifold/manifold-rt/2026.1.12/ce495c2ec3e69e61c18979d64d96baf6aa816ade/manifold-rt-2026.1.12.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/systems.manifold/manifold-util/2026.1.12/299bb6b999547440044813427d8f3235e552229a/manifold-util-2026.1.12.jar" />
+        </processorPath>
+        <module name="Minecraft-Transit-Railway.common.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="25" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Minecraft-Transit-Railway.common" options="-Xplugin:Manifold -AMC_VERSION=260102" />
+      <module name="Minecraft-Transit-Railway.common.main" options="-Xplugin:Manifold -AMC_VERSION=260102" />
+      <module name="Minecraft-Transit-Railway.common.test" options="-Xplugin:Manifold -AMC_VERSION=260102" />
+      <module name="Minecraft-Transit-Railway.rhino" options="-Xlint:none -Xlint:-deprecation -Xlint:-unchecked" />
+      <module name="Minecraft-Transit-Railway.rhino.main" options="-Xlint:none -Xlint:-deprecation -Xlint:-unchecked" />
+      <module name="Minecraft-Transit-Railway.rhino.test" options="-Xlint:none -Xlint:-deprecation -Xlint:-unchecked" />
+    </option>
+  </component>
+</project>

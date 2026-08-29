@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Minecraft Client (:neoforge)" type="Application" factoryName="Application">
+    <envs>
+      <env name="MOD_CLASSES" value="main%%D:\LMTR26.1\neoforge\build\resources\main;main%%D:\LMTR26.1\neoforge\build\classes\java\main;main%%D:\LMTR26.1\neoforge\out\production\classes;main%%D:\LMTR26.1\neoforge\out\production\resources" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="dev.architectury.transformer.TransformerRuntime" />
+    <module name="Minecraft-Transit-Railway.neoforge.main" />
+    <shortenClasspath name="ARGS_FILE" />
+    <option name="VM_PARAMETERS" value="--sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Darchitectury.main.class=D:\LMTR26.1\neoforge\.gradle\architectury\.main_class -Darchitectury.runtime.transformer=D:\LMTR26.1\neoforge\.gradle\architectury\.transforms -Darchitectury.properties=D:\LMTR26.1\neoforge\.gradle\architectury\.properties -Djdk.attach.allowAttachSelf=true -javaagent:D:\LMTR26.1\.gradle\architectury\architectury-transformer-agent.jar -Dfabric.dli.config=D:\LMTR26.1\.gradle\loom-cache\projects\neoforge\launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=net.neoforged.fml.startup.Client --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge/run/" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Minecraft Client (:fabric)" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="dev.architectury.transformer.TransformerRuntime" />
+    <module name="Minecraft-Transit-Railway.fabric.main" />
+    <shortenClasspath name="ARGS_FILE" />
+    <option name="VM_PARAMETERS" value="-Darchitectury.main.class=D:\LMTR26.1\fabric\.gradle\architectury\.main_class -Darchitectury.runtime.transformer=D:\LMTR26.1\fabric\.gradle\architectury\.transforms -Darchitectury.properties=D:\LMTR26.1\fabric\.gradle\architectury\.properties -Djdk.attach.allowAttachSelf=true -javaagent:D:\LMTR26.1\.gradle\architectury\architectury-transformer-agent.jar -Dfabric.dli.config=D:\LMTR26.1\.gradle\loom-cache\projects\fabric\launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotClient --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/fabric/run/" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
