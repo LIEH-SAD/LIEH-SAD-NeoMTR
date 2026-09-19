@@ -1,5 +1,7 @@
 package mtr.screen;
 
+import com.Nanbin.mapping.ClothConfigExtra;
+import com.lx862.jcm.mod.JCMClient;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -37,6 +39,14 @@ public class ConfigScreen implements IGui {
 			g.addEntry(entryBuilder.startIntSlider(Text.translatable("options.mtr.dynamic_texture_resolution"), Config.dynamicTextureResolution(), 0, Config.DYNAMIC_RESOLUTION_COUNT - 1).setDefaultValue(3).setSaveConsumer(Config::setDynamicTextureResolution).setTextGetter(value -> Text.literal(value.toString())).build());
 			g.addEntry(entryBuilder.startIntSlider(Text.translatable("options.mtr.vehicle_render_distance_ratio"), Config.trainRenderDistanceRatio(), 1, Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT).setDefaultValue(Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT).setSaveConsumer(Config::setTrainRenderDistanceRatio).setTextGetter(value -> Text.literal(String.format("%d%%", value * 100 / Config.TRAIN_RENDER_DISTANCE_RATIO_COUNT))).build());
 		}
+		// JCM的设置
+		g.addEntry(entryBuilder.startSubCategory(Text.literal("Joban Client Mod")).build());
+		g.addEntry(ClothConfigExtra.startScreenButton(entryBuilder, Text.translatable("gui.mtr.config_category_general"),
+				JCMClient::getClientConfigScreen).build());
+		// NTE的设置
+		g.addEntry(entryBuilder.startSubCategory(Text.literal("Nemo's Transit Expansion")).build());
+		g.addEntry(ClothConfigExtra.startScreenButton(entryBuilder, Text.translatable("gui.mtr.config_category_general"),
+				cn.zbx1425.mtrsteamloco.gui.ConfigScreen::createScreen).build());
 
 		ConfigCategory c = builder.getOrCreateCategory(Text.translatable("gui.mtr.config_contributor"));
 		c.addEntry(entryBuilder.startTextDescription(Text.translatable("options.mtr.support_patreon")).build());

@@ -185,6 +185,7 @@
 	"gui.mtr.config_title": "Minecraft Transit Railway %s",
 	"gui.mtr.config_category_general": "Settings",
 	"gui.mtr.config_contributor": "Contributors",
+	"gui.mtr.config_keybinds": "Keybindings",
 	"gui.mtr.cruising_altitude": "Cruising Altitude",
 	"gui.mtr.custom_destination_suggestion": "Destination (\\r to Reset)",
 	"gui.mtr.custom_resources_export_resource_pack": "Export Resource Pack",
@@ -795,5 +796,6 @@
 	"train.mtr.sp1900": "SP1900",
 	"train.mtr.sp1900_mini": "SP1900 (Mini)",
 	"train.mtr.sp1900_small": "SP1900 (Small)",
-	"train.mtr.spruce_boat": "Spruce Boat"
+	"train.mtr.spruce_boat": "Spruce Boat",
+    "gui.mtr.rail_action_slice": "Slice by %s (%s blocks long, %s)"
 }

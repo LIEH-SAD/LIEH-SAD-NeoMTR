@@ -200,11 +200,14 @@ public interface Blocks {
 	BrandNewEpicRegistryObject<Block> TRAIN_REDSTONE_SENSOR = new BrandNewEpicRegistryObject<>(resourceKey -> new BlockTrainRedstoneSensor(copyProperties(resourceKey, net.minecraft.world.level.block.Blocks.SMOOTH_STONE)));
 	BrandNewEpicRegistryObject<Block> TRAIN_SCHEDULE_SENSOR = new BrandNewEpicRegistryObject<>(resourceKey -> new BlockTrainScheduleSensor(copyProperties(resourceKey, net.minecraft.world.level.block.Blocks.SMOOTH_STONE)));
 
+	// forceSolidOn: railway facilities such as rail nodes have empty or thin collision shapes, which
+	// makes vanilla fluid flow treat them as replaceable and destroy them (see FlowingFluid#canHoldAnyFluid,
+	// which relies on BlockState#blocksMotion).
 	static BlockBehaviour.Properties createProperties(ResourceKey<Block> resourceKey) {
-		return BlockBehaviour.Properties.of().setId(resourceKey);
+		return BlockBehaviour.Properties.of().setId(resourceKey).forceSolidOn();
 	}
 
 	static BlockBehaviour.Properties copyProperties(ResourceKey<Block> resourceKey, Block block) {
-		return BlockBehaviour.Properties.ofFullCopy(block).setId(resourceKey);
+		return BlockBehaviour.Properties.ofFullCopy(block).setId(resourceKey).forceSolidOn();
 	}
 }

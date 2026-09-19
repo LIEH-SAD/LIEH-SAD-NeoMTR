@@ -14,12 +14,6 @@
 			"oversample": 16.0
 		},
 		{
-			"type": "otf",
-			"file": "mtr:hanyiwenhei_85w.otf",
-			"size": 12.0,
-			"oversample": 8.0
-		},
-		{
 			"type": "reference",
 			"id": "minecraft:default"
 		}

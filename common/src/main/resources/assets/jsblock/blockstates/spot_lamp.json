@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "ceiling=true": { "model": "jsblock:block/spot_lamp_ceiling" },
+	"ceiling=false": { "model": "jsblock:block/spot_lamp_ground" }
+  }
+}

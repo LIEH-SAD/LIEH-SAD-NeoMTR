@@ -18,6 +18,22 @@ public class RailwayDataRailActionsModule extends RailwayDataModuleBase {
 		super(railwayData, world, rails);
 	}
 
+	public List<Rail.RailActions> getRailActions() {
+		return railActions;
+	}
+
+	public Map<BlockPos, Map<BlockPos, Rail>> getRails() {
+		return rails;
+	}
+
+	public Level getWorld() {
+		return world;
+	}
+
+	public void sendUpdateS2C() {
+		PacketTrainDataGuiServer.updateRailActionsS2C(world, railActions);
+	}
+
 	public void tick() {
 		if (!railActions.isEmpty() && railActions.get(0).build()) {
 			railActions.remove(0);

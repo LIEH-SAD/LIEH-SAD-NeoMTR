@@ -138,6 +138,32 @@
 
     "item.mtrsteamloco.rail_editor_visual": "Rail Editor (Visual)",
     "item.mtrsteamloco.rail_editor_geometry": "Rail Editor (Geometry)",
+    "item.mtrsteamloco.compound_creator": "Compound Creator",
+
+    "gui.mtrsteamloco.compound_creator.title": "Compound Creator",
+    "gui.mtrsteamloco.compound_creator.copy": "Copy",
+    "gui.mtrsteamloco.compound_creator.clear": "Clear",
+    "gui.mtrsteamloco.compound_creator.task.config.title": "Task Configuration",
+    "gui.mtrsteamloco.compound_creator.task.config.button": "Config",
+    "gui.mtrsteamloco.compound_creator.task.config.start_pos": "Start Position",
+    "gui.mtrsteamloco.compound_creator.task.config.length": "Length",
+    "gui.mtrsteamloco.compound_creator.task.config.interval": "Interval",
+    "gui.mtrsteamloco.compound_creator.task.config.increment": "Increment",
+    "gui.mtrsteamloco.compound_creator.task.config.use_yaw": "Use Yaw",
+    "gui.mtrsteamloco.compound_creator.task.config.use_pitch": "Use Pitch",
+    "gui.mtrsteamloco.compound_creator.task.config.use_roll": "Use Roll",
+    "gui.mtrsteamloco.compound_creator.isOneWay": "One-way",
+    "gui.mtrsteamloco.compound_creator.isReversed": "Reversed",
+    "gui.mtrsteamloco.compound_creator.rail_modifier": "Rail Modifier",
+    "gui.mtrsteamloco.compound_creator.slice_task": "Slice Task",
+    "gui.mtrsteamloco.compound_creator.replacement": "Replacement",
+    "gui.mtrsteamloco.unknown_task_type": "Unknown task type: %s",
+    "gui.mtrsteamloco.no_tasks_found": "No tasks found on the Compound Creator",
+    "gui.mtrsteamloco.percentage_complete_slice": "Placing Slice (%s%%)",
+    "gui.mtrsteamloco.error.invalid_value": "Invalid value",
+    "gui.mtrsteamloco.brush_edit_rail.present": "Model: %s",
+    "gui.mtrsteamloco.brush_edit_rail.rail_type": "Rail Type",
+    "gui.mtrsteamloco.brush_edit_rail.rail_type_error": "Unknown or invalid rail type",
 
     "block.mtr.free_node": "Free Rail Node"
 }

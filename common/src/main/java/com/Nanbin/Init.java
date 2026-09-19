@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 
 public class Init {
     public static final String MOD_ID = "nanbin";
-    public static final Logger LOGGER = LoggerFactory.getLogger("NeoNanbin");
+    public static final Logger LOGGER = LoggerFactory.getLogger("Neo Nanbin");
 
     public static void init() {
-        LOGGER.info("Welcome , NeoNanbin!");
+        LOGGER.info("Hello, NeoNanbin!");
     }
 }

@@ -1,5 +1,10 @@
-include(Resources.id("nanbin:pids/scripts/crt_pids_1.js"));
 include(Resources.id("jsblock:scripts/pids_util.js")); 
+
+// 当站台没有足够班次时，arrivals().get(i) 会返回 null（而不是抛出异常），必须先判空。
+function getArrival(pids, index) {
+    const arrival = pids.arrivals().get(index);
+    return (arrival === null || arrival === undefined) ? null : arrival;
+}
 
 function create(ctx, state, pids) {
     print("Hello World ^^");
@@ -17,32 +22,38 @@ function render(ctx, state, pids) {
     let thirdColpos = 75
     let firstRowpos = 12
     let secondRowpos = 19
-    let ftime = Math.ceil((pids.arrivals().get(0).arrivalTime() - Date.now()) / 60000);
-    let reftime = 0
-    let stime = Math.ceil((pids.arrivals().get(1).arrivalTime() - Date.now()) / 60000);
-    let restime = 0
+    let firstArrival = getArrival(pids, 0)
+    let secondArrival = getArrival(pids, 1)
+    let ftime = firstArrival == null ? null : Math.ceil((firstArrival.arrivalTime() - Date.now()) / 60000);
+    let reftime = "暂无列车|No Train"
+    let stime = secondArrival == null ? null : Math.ceil((secondArrival.arrivalTime() - Date.now()) / 60000);
+    let restime = "暂无列车|No Train"
     let whiteColor = 0xFFFFFF
 
     //判断逻辑
-    if (ftime < 1){
-        reftime = "即将到达|Arriving";
-    }
-    else{
-        reftime = ftime + min_zh +"|" +ftime + min_en
+    if (ftime != null){
+        if (ftime < 1){
+            reftime = "即将到达|Arriving";
+        }
+        else{
+            reftime = ftime + min_zh +"|" +ftime + min_en
+        }
     }
 
-    if (stime < 1){
-        restime = "即将到达|Arriving";
-    }
-    else{
-        restime = stime + min_zh +"|" +stime + min_en
+    if (stime != null){
+        if (stime < 1){
+            restime = "即将到达|Arriving";
+        }
+        else{
+            restime = stime + min_zh +"|" +stime + min_en
+        }
     }
 
     //背景图片
     Texture.create("Background")
-    .texture("nanbin:pids/image/crt_pids_1.png")
-    .size(pids.width, pids.height)
-    .draw(ctx);
+        .texture("nanbin:pids/image/crt_pids_1.png")
+        .size(pids.width, pids.height)
+        .draw(ctx);
 
     //小广告
     /*
@@ -79,7 +90,7 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("secondColText1")
-    .text(TextUtil.cycleString(secondColText1 + pids.arrivals().get(0).destination()))
+    .text(TextUtil.cycleString(firstArrival == null ? "" : secondColText1 + firstArrival.destination()))
     .color(whiteColor)
     .pos(101, 24)
     .size(35, 18)
@@ -102,7 +113,7 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("fourthColText1")
-    .text(TextUtil.cycleString(secondColText1 + pids.arrivals().get(1).destination()))
+    .text(TextUtil.cycleString(secondArrival == null ? "" : secondColText1 + secondArrival.destination()))
     .color(whiteColor)
     .pos(101, 53)
     .size(35, 18)

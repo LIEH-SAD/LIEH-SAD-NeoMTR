@@ -4,6 +4,7 @@ import cn.zbx1425.mtrsteamloco.block.BlockEyeCandy;
 import cn.zbx1425.mtrsteamloco.block.BlockOneWayGate;
 import cn.zbx1425.mtrsteamloco.data.EyeCandyProperties;
 import cn.zbx1425.mtrsteamloco.data.EyeCandyRegistry;
+import cn.zbx1425.mtrsteamloco.item.CompoundCreator;
 import cn.zbx1425.mtrsteamloco.item.DisplacementTool;
 import cn.zbx1425.mtrsteamloco.network.*;
 import com.google.gson.JsonParser;
@@ -55,10 +56,10 @@ public class Main {
 		enableRegistry = enableRegistry1;
 	}
 
-	public static final BrandNewEpicRegistryObject<Block> BLOCK_EYE_CANDY = new BrandNewEpicRegistryObject<>(resourceKey -> new BlockEyeCandy(BlockBehaviour.Properties.of().setId(resourceKey)));
+	public static final BrandNewEpicRegistryObject<Block> BLOCK_EYE_CANDY = new BrandNewEpicRegistryObject<>(resourceKey -> new BlockEyeCandy(BlockBehaviour.Properties.of().setId(resourceKey).forceSolidOn()));
 	public static final RegistryObject<BlockEntityType<BlockEyeCandy.BlockEntityEyeCandy>>
 			BLOCK_ENTITY_TYPE_EYE_CANDY = new RegistryObject<>(() -> Registry.getBlockEntityType(BlockEyeCandy.BlockEntityEyeCandy::new, BLOCK_EYE_CANDY.get()));
-	public static final BrandNewEpicRegistryObject<Block> BLOCK_ONE_WAY_GATE = new BrandNewEpicRegistryObject<>(resourceKey -> new BlockOneWayGate(BlockBehaviour.Properties.of().setId(resourceKey)));
+	public static final BrandNewEpicRegistryObject<Block> BLOCK_ONE_WAY_GATE = new BrandNewEpicRegistryObject<>(resourceKey -> new BlockOneWayGate(BlockBehaviour.Properties.of().setId(resourceKey).forceSolidOn()));
 
 	public static final BrandNewEpicRegistryObject<Item> BRIDGE_CREATOR_1 = new BrandNewEpicRegistryObject<>((resourceKey) -> new ItemBridgeCreator(new Item.Properties().setId(resourceKey), 1));
 	public static final BrandNewEpicRegistryObject<Item> RAIL_EDITOR_VISUAL = new BrandNewEpicRegistryObject<>((resourceKey) ->
@@ -68,6 +69,9 @@ public class Main {
 
 	public static final BrandNewEpicRegistryObject<Item> DISPLACEMENT_TOOL = new BrandNewEpicRegistryObject<>((resourceKey) ->
 		new DisplacementTool(new Item.Properties().setId(resourceKey)));
+
+	public static final BrandNewEpicRegistryObject<Item> COMPOUND_CREATOR = new BrandNewEpicRegistryObject<>((resourceKey) ->
+		new CompoundCreator(new Item.Properties().setId(resourceKey)));
 
 	public static final RegistryObject<DataComponentType<CompoundTag>> TOOL_TAG = new RegistryObject<>(() -> DataComponentType.<CompoundTag>builder().persistent(CompoundTag.CODEC).build());
 
@@ -93,6 +97,7 @@ public class Main {
 			registries.registerItem("rail_editor_visual", RAIL_EDITOR_VISUAL);
 			registries.registerItem("rail_editor_geometry", RAIL_EDITOR_GEOMETRY);
 			registries.registerItem("displacement_tool", DISPLACEMENT_TOOL);
+			registries.registerItem("compound_creator", COMPOUND_CREATOR);
 			registries.registerSoundEvent("bell", SOUND_EVENT_BELL);
 			registries.registerDataComponents("tool_tag", TOOL_TAG);
 			registries.registerCreativeModeTabStacks(TAB_DECORATION_OBJECTS, () -> buildEyeCandyTabStacks());

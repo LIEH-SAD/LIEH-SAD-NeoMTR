@@ -1,6 +1,7 @@
 package cn.zbx1425.mtrsteamloco.network;
 
 import cn.zbx1425.mtrsteamloco.Main;
+import cn.zbx1425.mtrsteamloco.gui.CompoundCreatorScreen;
 import cn.zbx1425.mtrsteamloco.gui.EyeCandyScreen;
 import cn.zbx1425.mtrsteamloco.gui.RailEditorGeometryScreen;
 import cn.zbx1425.mtrsteamloco.gui.RailEditorVisualScreen;
@@ -17,9 +18,17 @@ public class PacketScreen {
 
     public static Identifier PACKET_SHOW_SCREEN = Main.id("show_screen");
 
+    public static void sendScreenS2C(ServerPlayer player, String screenName) {
+        final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+        packet.writeUtf(screenName);
+        packet.writeBoolean(false);
+        Registry.sendToPlayer(player, PACKET_SHOW_SCREEN, packet);
+    }
+
     public static void sendScreenBlockS2C(ServerPlayer player, String screenName, BlockPos pos) {
         final FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
         packet.writeUtf(screenName);
+        packet.writeBoolean(true);
         packet.writeBlockPos(pos);
         Registry.sendToPlayer(player, PACKET_SHOW_SCREEN, packet);
     }
@@ -32,7 +41,7 @@ public class PacketScreen {
         public static void receiveScreenS2C(FriendlyByteBuf packet) {
             Minecraft minecraftClient = Minecraft.getInstance();
             String screenName = packet.readUtf();
-            BlockPos pos = packet.readBlockPos();
+            BlockPos pos = packet.readBoolean() ? packet.readBlockPos() : null;
             minecraftClient.execute(() -> {
                 switch (screenName) {
                     case "eye_candy":
@@ -44,6 +53,9 @@ public class PacketScreen {
                     case "rail_editor_geometry":
                         RailEditorGeometryScreen.acquirePickInfoWhenUse(pos);
                         UtilitiesClient.setScreen(minecraftClient, new RailEditorGeometryScreen());
+                        break;
+                    case "compound_creator":
+                        minecraftClient.setScreen(CompoundCreatorScreen.createScreen(minecraftClient.screen));
                         break;
                 }
             });

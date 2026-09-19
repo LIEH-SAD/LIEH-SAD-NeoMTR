@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.lx862.jcm.mod.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "compat.MappedRegistryMixin",
+    "modded.MixinPacketTrainDataGuiServer",
+    "modded.MixinTicketSystem"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

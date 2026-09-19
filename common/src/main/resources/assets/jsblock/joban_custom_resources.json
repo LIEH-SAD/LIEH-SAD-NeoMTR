@@ -1,31 +1,153 @@
-{
-    "pids_images": [
-      {
-        "id": "nanbin_crt_pids_1",
-        "name": "重庆轨道交通PIDS概念版",
-        "builtin": true,
-        "background": "nanbin:pids/image/crt_pids_1.png",
-        "fonts": "nanbin:font/alibabapuhuiti_regular.ttf",
-        "scriptFiles": ["nanbin:pids/script/crt_pids_1.js"],
-        "blacklist": ["pids_1a"]
-      },
-      {
-        "id": "nanbin_crt_pids_2",
-        "name": "重庆轨道交通PIDS（1/3/9号线）",
-        "builtin": true,
-        "background": "nanbin:pids/image/crt_pids_2.png",
-        "fonts": "nanbin:font/alibabapuhuiti_regular.ttf",
-        "scriptFiles": ["nanbin:pids/script/crt_pids_2.js"],
-        "blacklist": ["pids_1a"]
-      },
-      {
-        "id": "nanbin_crt_pids_3",
-        "name": "重庆轨道交通PIDS（2/3号线）",
-        "builtin": true,
-        "background": "nanbin:pids/image/crt_pids_3.png",
-        "fonts": "nanbin:font/alibabapuhuiti_regular.ttf",
-        "scriptFiles": ["nanbin:pids/script/crt_pids_3.js"],
-        "blacklist": ["pids_1a"]
-      }
-    ]
+﻿{
+    "pids_images":  [
+                        {
+                            "id":  "nanbin_crt_pids_1",
+                            "name":  "重庆轨道交通PIDS概念版",
+                            "builtin":  true,
+                            "background":  "nanbin:pids/image/crt_pids_1.png",
+                            "fonts":  "nanbin:font/alibabapuhuiti_regular.ttf",
+                            "scriptFiles":  [
+                                                "nanbin:pids/script/crt_pids_1.js"
+                                            ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "nanbin_crt_pids_2",
+                            "name":  "重庆轨道交通PIDS（1/3/9号线）",
+                            "builtin":  true,
+                            "background":  "nanbin:pids/image/crt_pids_2.png",
+                            "fonts":  "nanbin:font/alibabapuhuiti_regular.ttf",
+                            "scriptFiles":  [
+                                                "nanbin:pids/script/crt_pids_2.js"
+                                            ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "nanbin_crt_pids_3",
+                            "name":  "重庆轨道交通PIDS（2/3号线）",
+                            "builtin":  true,
+                            "background":  "nanbin:pids/image/crt_pids_3.png",
+                            "fonts":  "nanbin:font/alibabapuhuiti_regular.ttf",
+                            "scriptFiles":  [
+                                                "nanbin:pids/script/crt_pids_3.js"
+                                            ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "rv_pids",
+                            "name":  "Hong Kong Railway Vision PIDS",
+                            "builtin":  true,
+                            "background":  "jsblock:textures/block/pids/rv_default.png",
+                            "color":  "000000",
+                            "topPadding":  true,
+                            "showWeather":  true,
+                            "showClock":  true,
+                            "fonts":  "mtr:mtr",
+                            "hideRow":  [
+                                            false,
+                                            false,
+                                            false,
+                                            false
+                                        ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "door_cls_psd",
+                            "name":  "RV PIDS (Door Closing PSD)",
+                            "builtin":  true,
+                            "background":  "jsblock:textures/block/pids/rv_door_cls_psd.png",
+                            "color":  "000000",
+                            "topPadding":  true,
+                            "showWeather":  true,
+                            "showClock":  true,
+                            "fonts":  "mtr:mtr",
+                            "hideRow":  [
+                                            true,
+                                            true,
+                                            true,
+                                            false
+                                        ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "door_cls_apg",
+                            "name":  "RV PIDS (Door Closing APG)",
+                            "builtin":  true,
+                            "background":  "jsblock:textures/block/pids/rv_door_cls_apg.png",
+                            "color":  "000000",
+                            "topPadding":  true,
+                            "showWeather":  true,
+                            "showClock":  true,
+                            "fonts":  "mtr:mtr",
+                            "hideRow":  [
+                                            true,
+                                            true,
+                                            true,
+                                            false
+                                        ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "door_cls_train",
+                            "name":  "RV PIDS (Door Closing)",
+                            "builtin":  true,
+                            "background":  "jsblock:textures/block/pids/rv_door_cls_train.png",
+                            "color":  "000000",
+                            "topPadding":  true,
+                            "showWeather":  true,
+                            "showClock":  true,
+                            "fonts":  "mtr:mtr",
+                            "hideRow":  [
+                                            true,
+                                            true,
+                                            true,
+                                            false
+                                        ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "lcd_pids",
+                            "name":  "Hong Kong LCD PIDS",
+                            "builtin":  true,
+                            "background":  "jsblock:textures/block/pids/black.png",
+                            "color":  "EADD9A",
+                            "topPadding":  false,
+                            "showWeather":  false,
+                            "showClock":  false,
+                            "hidePlatform":  true,
+                            "fonts":  "jsblock:pids_lcd",
+                            "hideRow":  [
+                                            false,
+                                            false,
+                                            false,
+                                            false
+                                        ],
+                            "blacklist":  [
+                                              "pids_1a"
+                                          ]
+                        },
+                        {
+                            "id":  "pids_1a",
+                            "name":  "PIDS 1A",
+                            "builtin":  true,
+                            "thumbnail":  "jsblock:textures/gui/pids/thumbnail/pids_1a.png",
+                            "scriptFiles":  [
+                                                "jsblock:scripts/builtin/pids_1a.js"
+                                            ]
+                        }
+                    ]
 }

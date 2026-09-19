@@ -554,15 +554,9 @@ public class DashboardScreen extends MTRScreen implements IGui, IPacket {
 
 	private void onMapPointClicked(SavedRailBase savedRail) {
 		if (savedRail instanceof Platform) {
-			final Station station = ClientData.DATA_CACHE.platformIdToStation.get(savedRail.id);
-			if (station != null) {
-				UtilitiesClient.setScreen(minecraft, new EditStationScreen(station, this));
-			}
+			UtilitiesClient.setScreen(minecraft, new PlatformScreen((Platform) savedRail, transportMode, this));
 		} else if (savedRail instanceof Siding) {
-			final Depot depot = ClientData.DATA_CACHE.sidingIdToDepot.get(savedRail.id);
-			if (depot != null) {
-				UtilitiesClient.setScreen(minecraft, new EditDepotScreen(depot, transportMode, this));
-			}
+			UtilitiesClient.setScreen(minecraft, new SidingScreen((Siding) savedRail, transportMode, this));
 		}
 	}
 

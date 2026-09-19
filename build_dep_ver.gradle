@@ -25,7 +25,7 @@ rootProject.ext.minecraft_version_int = minecraft_version.split("\\.")[0] +
         (minecraft_version.split("\\.").length > 2 ? minecraft_version.split("\\.")[2].padLeft(2, '0') : "00")
 rootProject.ext.is_1_19_3 = minecraft_version == "1.19.3" || minecraft_version == "1.19.4"
 rootProject.ext.is_1_20 = minecraft_version == "1.20" || minecraft_version == "1.20.1"
-rootProject.ext.mod_version = "3.6.2-beta2"
+rootProject.ext.mod_version = "3.6.2-beta4"
 rootProject.ext.minecraft_mod_api_tools_version = "2.0.2"
 rootProject.ext.maven_group = "com.github.jonafanho"
 

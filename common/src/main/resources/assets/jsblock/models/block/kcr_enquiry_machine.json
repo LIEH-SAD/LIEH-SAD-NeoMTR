@@ -1,0 +1,24 @@
+{
+	"ambientocclusion": false,
+	"texture_size": [22, 22],
+	"textures": {
+		"0": "jsblock:block/kcr_enquiry_machine",
+		"particle": "jsblock:block/kcr_enquiry_machine"
+	},
+	"elements": [
+		{
+			"name": "main",
+			"from": [3.5, 2.5, 0],
+			"to": [12.5, 13.5, 1],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 6.54545, 8], "texture": "#0", "cullface": "north"},
+				"east": {"uv": [0, 8, 0.72727, 16], "texture": "#0"},
+				"south": {"uv": [6.54545, 0, 13.09091, 8], "texture": "#0"},
+				"west": {"uv": [0.72727, 8, 1.45455, 16], "texture": "#0"},
+				"up": {"uv": [8, 8.72727, 1.45455, 8], "texture": "#0"},
+				"down": {"uv": [14.54545, 8, 8, 8.72727], "texture": "#0"}
+			}
+		}
+	]
+}

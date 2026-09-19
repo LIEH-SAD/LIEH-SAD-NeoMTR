@@ -1,0 +1,30 @@
+{
+	"providers": [
+		{
+			"type": "ttf",
+			"file": "jsblock:nimbus_sans.ttf",
+			"shift": [ -1.2, 1.2 ],
+			"size": 9.4,
+			"oversample": 7.5
+		},
+		{
+			"type": "ttf",
+			"file": "jsblock:noto_serif_tc_black.ttf",
+			"shift": [ -0.6, 0.85 ],
+			"size": 9.7,
+			"oversample": 7.0
+		},
+		{
+			"type": "reference",
+			"id": "minecraft:include/space"
+		},
+		{
+			"type": "reference",
+			"id": "minecraft:include/default"
+		},
+		{
+			"type": "reference",
+			"id": "minecraft:include/unifont"
+		}
+	]
+}
